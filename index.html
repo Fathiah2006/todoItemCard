@@ -27,8 +27,7 @@
     
             <div class="card-inner">
     
-                <!-- Header -->
-                <div class="card-header">
+<div class="card-header">
                     <div class="checkbox-wrap">
                         <label aria-label="Mark task as complete">
                             <input type="checkbox" data-testid="test-todo-complete-toggle" id="chk"
@@ -42,15 +41,23 @@
                             </svg>
                         </button>
                     </div>
-    
+
                     <div class="title-block">
                         <h2 data-testid="test-todo-title" class="task-title" id="task-title">
                             Redesign onboarding flow
                         </h2>
-                        <p data-testid="test-todo-description" class="task-desc">
-                            Revamp the new-user setup wizard, add progress indicators, and
-                            cut time-to-value from first login. Coordinate with product &amp; copy teams.
-                        </p>
+                        <div data-testid="test-todo-collapsible-section" class="description-container" id="description-container">
+                            <p data-testid="test-todo-description" class="task-desc" id="task-desc">
+                                Revamp the new-user setup wizard, add progress indicators, and
+                                cut time-to-value from first login. Coordinate with product &amp; copy teams.
+                            </p>
+                        </div>
+                        <button data-testid="test-todo-expand-toggle" class="expand-toggle" id="expand-toggle" aria-expanded="false" aria-controls="description-container" onclick="toggleExpand()" style="display: none;">
+                            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="3,6 7,10 11,6" />
+                            </svg>
+                            Expand
+                        </button>
                     </div>
                 </div>
     
@@ -60,20 +67,31 @@
                 <div class="meta-grid">
                     <div class="meta-item">
                         <div class="meta-label">Priority</div>
-                        <span data-testid="test-todo-priority" class="badge badge-high" aria-label="Priority: High"
-                            role="status">
-                            <span class="badge-dot" aria-hidden="true"></span>High
+                        <span data-testid="test-todo-priority-indicator" class="priority-indicator" id="priority-indicator">
+                            <span class="priority-dot" aria-hidden="true"></span>
+                            <span data-testid="test-todo-priority" class="badge badge-high" aria-label="Priority: High"
+                                role="status">
+                                <span class="badge-dot" aria-hidden="true"></span>High
+                            </span>
                         </span>
                     </div>
                     <div class="meta-item">
                         <div class="meta-label">Status</div>
-                        <span data-testid="test-todo-status" class="badge badge-inprogress" id="status-badge"
-                            aria-label="Status: In Progress" role="status"><span id="status-text">In Progress</span></span>
+                        <div class="status-container">
+                            <select data-testid="test-todo-status-control" id="status-control" onchange="handleStatusChange(this.value)" aria-label="Change task status">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress" selected>In Progress</option>
+                                <option value="Done">Done</option>
+                            </select>
+                            <span data-testid="test-todo-status" class="badge badge-inprogress" id="status-badge"
+                                aria-label="Status: In Progress" role="status"><span id="status-text">In Progress</span></span>
+                        </div>
                     </div>
                     <div class="meta-item">
                         <div class="meta-label">Due date</div>
-                        <time data-testid="test-todo-due-date" datetime="2026-04-16T16:00:00Z" class="meta-value">Apr 16,
+                        <time data-testid="test-todo-due-date" datetime="2026-04-16T16:00:00Z" class="meta-value" id="due-date">Apr 16,
                             2026</time>
+                        <span data-testid="test-todo-overdue-indicator" class="overdue-indicator" id="overdue-indicator" style="display: none;">Overdue</span>
                     </div>
                     <div class="meta-item">
                         <div class="meta-label">Time remaining</div>
@@ -96,10 +114,42 @@
     
             </div><!-- /card-inner -->
     
+            <!-- Edit Form -->
+            <div data-testid="test-todo-edit-form" class="edit-form" id="edit-form" style="display: none;">
+                <div class="edit-form-inner">
+                    <div class="form-group">
+                        <label for="edit-title">Title</label>
+                        <input type="text" id="edit-title" data-testid="test-todo-edit-title-input" value="Redesign onboarding flow">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-description">Description</label>
+                        <textarea id="edit-description" data-testid="test-todo-edit-description-input">Revamp the new-user setup wizard, add progress indicators, and cut time-to-value from first login. Coordinate with product &amp; copy teams.</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-priority">Priority</label>
+                            <select id="edit-priority" data-testid="test-todo-edit-priority-select">
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High" selected>High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-due-date">Due Date</label>
+                            <input type="datetime-local" id="edit-due-date" data-testid="test-todo-edit-due-date-input" value="2026-04-16T16:00">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button data-testid="test-todo-save-button" class="btn btn-save" onclick="saveEdit()">Save</button>
+                        <button data-testid="test-todo-cancel-button" class="btn btn-cancel" onclick="cancelEdit()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+    
             <!-- Footer -->
             <div class="card-footer">
                 <button data-testid="test-todo-edit-button" class="btn btn-edit" aria-label="Edit task"
-                    onclick="console.log('edit clicked')">
+                    onclick="enterEditMode()">
                     <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                         stroke-linejoin="round" aria-hidden="true">
                         <path d="M9.5 2a1.2 1.2 0 0 1 1.7 1.7L4 11H2V9L9.5 2Z" />
